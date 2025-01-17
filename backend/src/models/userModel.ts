@@ -50,7 +50,8 @@ const userSchema = new mongoose.Schema(
       required: true,
     },
     voucher: {
-      type: String,
+      type: Number,
+      default: 0,
       required: true,
     },
     createdAt: {
