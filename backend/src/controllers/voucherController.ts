@@ -300,7 +300,6 @@ export const adminApproveRejectVoucher = async (
       if (userStatusVoucher) {
         userStatusVoucher.status = "completed";
       }
-
       await User.findByIdAndUpdate(userId, {
         $inc: { voucher: voucher.points || 0 },
       });
