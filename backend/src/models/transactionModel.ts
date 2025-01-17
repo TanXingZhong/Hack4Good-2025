@@ -1,26 +1,40 @@
 import mongoose, { Document, Mongoose } from "mongoose";
 
+interface ITransactionProduct {
+    productId: mongoose.Types.ObjectId;
+    amount: number;
+}
+
 interface ITransaction extends Document {
-    userId: string
-    productId: mongoose.Types.ObjectId
-    amount: number
-    createdAt: Date
+    userId: string;
+    products: ITransactionProduct[];
+    status: "cart" | "pending" | "approved" | "rejected";
+    createdAt: Date;
 }
 
 const transactionSchema = new mongoose.Schema(
     {
         userId: {
-            type: String,
-            required: true,
-        },
-        productId: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "Product",
             required: true,
         },
-        amount: {
-            type: Number,
-            required: true,
+        products: [
+            {
+                productId: {
+                    type: mongoose.Schema.Types.ObjectId,
+                    ref: "Product",
+                    required: true,
+                },
+                amount: {
+                    type: Number,
+                    required: true,
+                },
+            },
+        ],
+        status: {
+            type: String,
+            enum: ["cart", "pending", "approved", "rejected"],
+            default: "pending", // Default status
         },
         createdAt: {
             type: Date,
@@ -30,5 +44,5 @@ const transactionSchema = new mongoose.Schema(
 );
 
 const Transaction = mongoose.model<ITransaction>("Transaction", transactionSchema);
-export { transactionSchema, ITransaction };
+export { transactionSchema, ITransaction, ITransactionProduct };
 export default Transaction;

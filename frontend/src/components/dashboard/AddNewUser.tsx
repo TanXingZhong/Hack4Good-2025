@@ -58,7 +58,33 @@ const AddNewUser: React.FC<UpdateUserProps> = ({
   handleUpdateUserInfo,
   selectedUser,
 }) => {
-  const [formData, setFormData] = useState<FormData>({} as FormData);
+  const [formData, setFormData] = useState<FormData>({
+    id: "",
+    name: "",
+    email: "",
+    voucher: "",
+    sex: "",
+    admin: false,
+    phonenumber: "",
+    isActive: false,
+    newPassword: "",
+    confirmPassword: "",
+  });
+
+  useEffect(() => {
+    setFormData({
+      id: "",
+      name: "",
+      email: "",
+      voucher: "",
+      sex: "Male",
+      admin: false,
+      phonenumber: "",
+      isActive: true,
+      newPassword: "",
+      confirmPassword: "",
+    });
+  }, [open]);
   const [errorState, setErrorState] = useState<ErrorState>({
     name: { error: false, message: "" },
     email: { error: false, message: "" },
@@ -122,11 +148,19 @@ const AddNewUser: React.FC<UpdateUserProps> = ({
       setError("email", false, "");
     }
 
-    const confirmPassword = document.getElementById("confirmPassword") as HTMLInputElement;
-    const newPassword = document.getElementById("newPassword") as HTMLInputElement;
+    const confirmPassword = document.getElementById(
+      "confirmPassword"
+    ) as HTMLInputElement;
+    const newPassword = document.getElementById(
+      "newPassword"
+    ) as HTMLInputElement;
 
     if (newPassword.value && newPassword.value.length < 8) {
-      setError("newPassword", true, "Password must be at least 8 characters long.");
+      setError(
+        "newPassword",
+        true,
+        "Password must be at least 8 characters long."
+      );
       isValid = false;
     } else {
       setError("newPassword", false, "");
@@ -171,7 +205,6 @@ const AddNewUser: React.FC<UpdateUserProps> = ({
       id: "sex",
       label: "Sex",
       type: "select",
-      defaultValue: formData.sex,
       value: formData.sex,
       options: [
         { value: "Male", label: "Male" },
@@ -201,7 +234,7 @@ const AddNewUser: React.FC<UpdateUserProps> = ({
       error: errorState.confirmPassword.error,
       helperText: errorState.confirmPassword.message,
     },
-  ]
+  ];
 
   const actionsData = [
     { id: "admin", name: "admin", label: "Admin", checked: false },
@@ -243,11 +276,12 @@ const AddNewUser: React.FC<UpdateUserProps> = ({
                     }
                     fullWidth
                   >
-                    {field.options && field.options.map((option) => (
-                      <MenuItem key={option.value} value={option.value}>
-                        {option.label}
-                      </MenuItem>
-                    ))}
+                    {field.options &&
+                      field.options.map((option) => (
+                        <MenuItem key={option.value} value={option.value}>
+                          {option.label}
+                        </MenuItem>
+                      ))}
                   </TextField>
                 ) : (
                   <TextField
@@ -280,7 +314,7 @@ const AddNewUser: React.FC<UpdateUserProps> = ({
                     <Switch
                       name={action.name}
                       id={action.name}
-                      checked={action.checked}
+                      checked={Boolean(formData[action.name as keyof FormData])}
                       onChange={(e) =>
                         setFormData({
                           ...formData,
@@ -298,22 +332,22 @@ const AddNewUser: React.FC<UpdateUserProps> = ({
             {formFieldsRight.map((field) => (
               <FormControl key={field.id} fullWidth sx={{ marginBottom: 2 }}>
                 <FormLabel htmlFor={field.id}>{field.label}</FormLabel>
-                  <TextField
-                    autoComplete={field.id}
-                    name={field.id}
-                    id={field.id}
-                    fullWidth
-                    variant="outlined"
-                    value={field.value}
-                    type={field.type}
-                    placeholder={field.placeholder}
-                    onChange={(e) =>
-                      setFormData({ ...formData, [field.id]: e.target.value })
-                    }
-                    error={field.error}
-                    helperText={field.helperText}
-                    color={field.error ? "error" : "primary"}
-                  />
+                <TextField
+                  autoComplete={field.id}
+                  name={field.id}
+                  id={field.id}
+                  fullWidth
+                  variant="outlined"
+                  value={field.value}
+                  type={field.type}
+                  placeholder={field.placeholder}
+                  onChange={(e) =>
+                    setFormData({ ...formData, [field.id]: e.target.value })
+                  }
+                  error={field.error}
+                  helperText={field.helperText}
+                  color={field.error ? "error" : "primary"}
+                />
               </FormControl>
             ))}
           </Grid>
@@ -322,7 +356,7 @@ const AddNewUser: React.FC<UpdateUserProps> = ({
       <DialogActions sx={{ pb: 3, px: 3 }}>
         <Button onClick={handleClose}>Cancel</Button>
         <Button variant="contained" type="submit">
-          Update
+          Create
         </Button>
       </DialogActions>
     </Dialog>

@@ -60,16 +60,16 @@ const Users: React.FC = () => {
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarOpen, setSnackbarOpen] = useState(false);
 
-  const displaySnackbar = (message : string) => {
+  const displaySnackbar = (message: string) => {
     setSnackbarMessage(message);
     setSnackbarOpen(true);
     console.log(message);
-  }
+  };
 
   // close snackbar/toast
   const handleCloseSnackbar = () => {
     setSnackbarOpen(false);
-  }
+  };
 
   const handleClickOpenUpdate = (row: UserRow) => {
     setLoading(true);
@@ -143,6 +143,7 @@ const Users: React.FC = () => {
       username: updatedUser.name,
       email: updatedUser.email,
       phoneNumber: updatedUser.phonenumber,
+      voucher: updatedUser.voucher,
       gender: updatedUser.sex,
       isActive: updatedUser.isActive,
     }).then((response) => {

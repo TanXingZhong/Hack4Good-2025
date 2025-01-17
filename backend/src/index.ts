@@ -10,6 +10,7 @@ import authenticationRoute from "./routes/authenticationRoute";
 import userRoute from "./routes/userRoute";
 import voucherRoute from "./routes/voucherRoute";
 import productRoute from "./routes/productRoute";
+import transactionRoute from "./routes/transactionRoute";
 
 // Initialize Express Application
 const app: Application = express();
@@ -39,6 +40,7 @@ app.use("/authentication", authenticationRoute);
 app.use("/users", userRoute);
 app.use("/vouchers", voucherRoute);
 app.use("/products", productRoute);
+app.use("/transactions", transactionRoute);
 
 // Start Server and Connect to Database
 app.listen(port, () => {

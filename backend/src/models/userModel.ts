@@ -18,6 +18,7 @@ interface IUser extends Document {
   passwordResetToken?: string;
   passwordResetTokenExpiration?: Date;
   isAdmin: boolean;
+  voucher: number;
   acceptedVouchers: mongoose.Schema.Types.ObjectId[]; // Array of Voucher IDs the user has accepted
   userStatuses: Array<{
     voucherId: mongoose.Schema.Types.ObjectId;
@@ -45,6 +46,10 @@ const userSchema = new mongoose.Schema(
       required: true,
     },
     password: {
+      type: String,
+      required: true,
+    },
+    voucher: {
       type: String,
       required: true,
     },

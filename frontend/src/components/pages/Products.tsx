@@ -5,6 +5,7 @@ import { getAllProducts, Product as ProductType } from "../../api/product";
 import Product from "../dashboard/Product";
 
 interface ProductDataType {
+  _id: string;
   image: string;
   title: string;
   price: number;
@@ -18,17 +19,16 @@ export default function Products() {
     getAllProducts().then((response) => {
       if (response.status === 200) {
         console.log(response);
-        setProductData(
-          response.productInfo.data.map((p: ProductType) => {
-            return {
-              image: p.imageUrl,
-              title: p.name,
-              price: p.price,
-              description: p.description,
-              quantity: p.countInStock,
-            };
-          })
-        );
+        setProductData(response.productInfo.data.map((p: ProductType) => {
+          return {
+            _id: p._id,
+            image: p.imageUrl,
+            title: p.name,
+            price: p.price,
+            description: p.description,
+            quantity: p.countInStock,
+          }
+        }));
       } else {
         setProductData([]);
       }
@@ -50,6 +50,7 @@ export default function Products() {
         {productData.map((item, index) => (
           <Col xs="12" sm="6" md="4" key={index}>
             <Product
+              id={item._id}
               image={item.image}
               title={item.title}
               subtitle=""

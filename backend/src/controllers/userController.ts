@@ -80,6 +80,8 @@ export async function createUser(req: Request, res: Response) {
       phoneNumber,
       password: hashedPassword,
       gender,
+      isAdmin: false,
+      voucher: 0,
     });
 
     if (newUser) {
@@ -310,7 +312,16 @@ export async function getAllUsers(req: Request, res: Response) {
  * - 500: Server error.
  */
 export const updateUser = async (req: Request, res: Response) => {
-  const { id, username, email, phoneNumber, gender, isActive, newPassword } = req.body;
+  const {
+    id,
+    username,
+    email,
+    phoneNumber,
+    voucher,
+    gender,
+    isActive,
+    newPassword,
+  } = req.body;
 
   try {
     // Retrieve user from database
@@ -368,6 +379,7 @@ export const updateUser = async (req: Request, res: Response) => {
     user.username = username || user.username;
     user.phoneNumber = phoneNumber || user.phoneNumber;
     user.gender = gender || user.gender;
+    user.voucher = voucher || user.voucher;
 
     if (isActive !== null && isActive !== undefined) {
       user.isActive = isActive !== 0;
@@ -520,7 +532,9 @@ export async function getVouchers(req: Request, res: Response) {
       res.status(404).json({ message: `User ${userId} not found` });
       return;
     }
-    res.status(200).json({ message: `Voucher balance for user ${userId} is ${user.acceptedVouchers}` });
+    res.status(200).json({
+      message: `Voucher balance for user ${userId} is ${user.acceptedVouchers}`,
+    });
   } catch (err) {
     console.error(err);
     res

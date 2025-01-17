@@ -148,6 +148,13 @@ const UpdateUser: React.FC<UpdateUserProps> = ({
       helperText: errorState.phonenumber.message,
     },
     {
+      id: "voucher",
+      label: "Voucher Points",
+      value: formData.voucher,
+      error: errorState.voucher.error,
+      helperText: errorState.voucher.message,
+    },
+    {
       id: "sex",
       label: "Sex",
       type: "select",
@@ -229,33 +236,38 @@ const UpdateUser: React.FC<UpdateUserProps> = ({
               </FormControl>
             ))}
           </Grid>
-          { selectedUser && auth.id === selectedUser.id ? <></> :
-          <Grid size={{ xs: 12, md: 6 }}>
-            <Grid sx={{ display: "flex", flexDirection: "column" }}>
-              <FormLabel>Actions</FormLabel>
-              {actionsData.map((action) => (
-                <FormControlLabel
-                  key={action.name}
-                  control={
-                    <Switch
-                      name={action.name}
-                      id={action.name}
-                      checked={Boolean(formData[action.name as keyof FormData])}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          [action.name]: e.target.checked ? 1 : 0,
-                        })
-                      }
-                      color="primary"
-                    />
-                  }
-                  label={action.label}
-                  sx={{ marginBottom: 2 }}
-                />
-              ))}
+          {selectedUser && auth.id === selectedUser.id ? (
+            <></>
+          ) : (
+            <Grid size={{ xs: 12, md: 6 }}>
+              <Grid sx={{ display: "flex", flexDirection: "column" }}>
+                <FormLabel>Actions</FormLabel>
+                {actionsData.map((action) => (
+                  <FormControlLabel
+                    key={action.name}
+                    control={
+                      <Switch
+                        name={action.name}
+                        id={action.name}
+                        checked={Boolean(
+                          formData[action.name as keyof FormData]
+                        )}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            [action.name]: e.target.checked ? 1 : 0,
+                          })
+                        }
+                        color="primary"
+                      />
+                    }
+                    label={action.label}
+                    sx={{ marginBottom: 2 }}
+                  />
+                ))}
+              </Grid>
             </Grid>
-          </Grid> }
+          )}
         </Grid>
       </DialogContent>
       <DialogActions sx={{ pb: 3, px: 3 }}>

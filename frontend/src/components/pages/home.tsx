@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { Profiler, useEffect, useState } from "react";
 import {
   Box,
   Grid2,
@@ -10,12 +10,15 @@ import {
   Card,
   IconButton,
   Divider,
+  Snackbar,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useAuth } from "../../contexts/AuthContext";
+import { createTransaction, fetchUserCart, updateTransaction } from "../../api/transaction";
+import { getProduct } from "../../api/product";
 
 interface CartItem {
-  id: number;
+  id: string;
   name: string;
   description: string;
   photoUrl: string;
@@ -26,9 +29,9 @@ interface CartItem {
 
 interface CartItemProps {
   item: CartItem;
-  onUpdate: (id: number, quantity: number) => void;
-  onDelete: (id: number) => void;
-  onSelect: (id: number) => void;
+  onUpdate: (id: string, quantity: number) => void;
+  onDelete: (id: string) => void;
+  onSelect: (id: string) => void;
 }
 
 const CartItemComponent: React.FC<CartItemProps> = ({
@@ -71,7 +74,7 @@ const CartItemComponent: React.FC<CartItemProps> = ({
         </Grid2>
         <Grid2 size={{ xs: 2 }}>
           <Typography variant="body1" color="primary">
-            ${item.price.toFixed(2)}
+            {item.price.toFixed(2)} points
           </Typography>
         </Grid2>
         <Grid2 size={{ xs: 2 }}>
@@ -87,7 +90,7 @@ const CartItemComponent: React.FC<CartItemProps> = ({
         </Grid2>
         <Grid2 size={{ xs: 2 }}>
           <Typography variant="body1" color="primary">
-            ${(item.price * item.quantity).toFixed(2)}
+            {(item.price * item.quantity).toFixed(2)} points
           </Typography>
         </Grid2>
         <Grid2 size={{ xs: 1 }}>
@@ -100,12 +103,19 @@ const CartItemComponent: React.FC<CartItemProps> = ({
   );
 };
 
+export type ProductAmount = {
+  productId: string,
+  amount: number
+};
+
 const Home: React.FC = () => {
   const { auth } = useAuth();
 
+  const [productList, setProductList] = useState<ProductAmount[]>([]);
+
   const [cartItems, setCartItems] = useState<CartItem[]>([
     {
-      id: 1,
+      id: "1",
       name: "SKIN1004 Madagascar Centella Hyalu-Cica Water-Fit Sun Serum",
       description: "SPF50+ PA++++",
       photoUrl:
@@ -115,7 +125,7 @@ const Home: React.FC = () => {
       selected: false,
     },
     {
-      id: 2,
+      id: "2",
       name: "COSRX Low pH Good Morning Gel Cleanser",
       description: "150ml",
       photoUrl:
@@ -126,17 +136,27 @@ const Home: React.FC = () => {
     },
   ]);
 
-  const handleUpdate = (id: number, quantity: number) => {
+  const handleUpdate = (id: string, quantity: number) => {
     setCartItems((items) =>
       items.map((item) => (item.id === id ? { ...item, quantity } : item))
     );
   };
 
-  const handleDelete = (id: number) => {
+  const handleDelete = async (id: string) => {
     setCartItems((items) => items.filter((item) => item.id !== id));
+
+    const userId = auth.id;
+    const transaction = await fetchUserCart(userId);
+
+    if (transaction !== null) {
+      await updateTransaction(transaction._id, {
+        products: transaction.products.filter((item: ProductAmount) => item.productId !== id),
+        status: "cart"
+      });
+    }
   };
 
-  const handleSelect = (id: number) => {
+  const handleSelect = (id: string) => {
     setCartItems((items) =>
       items.map((item) =>
         item.id === id ? { ...item, selected: !item.selected } : item
@@ -156,6 +176,83 @@ const Home: React.FC = () => {
       .filter((item) => item.selected)
       .reduce((sum, item) => sum + item.price * item.quantity, 0)
       .toFixed(2);
+
+  useEffect(() => {
+    const userId = auth.id;
+    fetchUserCart(userId).then(response => {
+      if (response === null) {
+        createTransaction({
+          userId: userId,
+          products: [],
+          status: "cart"
+        });
+      } else {
+        setProductList(response.products);
+      }
+    })
+  }, []);
+
+  async function f() {
+    console.log("prod", productList)
+
+    const cartItems = await Promise.all(productList.map(async (product) => { 
+
+      const prodDetails = await getProduct(product.productId);
+
+      console.log(prodDetails);
+
+      return {
+        id: product.productId,
+        name: prodDetails.productInfo.data.name,
+        description: prodDetails.productInfo.data.description,
+        photoUrl: prodDetails.productInfo.data.imageUrl,
+        price: parseFloat(prodDetails.productInfo.data.price) as number,
+        quantity: product.amount,
+        selected: false,
+      }
+    }));
+
+    setCartItems(cartItems);
+  }
+
+  useEffect(() => {
+    f();
+  }, [productList]);
+
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+
+  const displaySnackbar = (message : string) => {
+    setSnackbarMessage(message);
+    setSnackbarOpen(true);
+    console.log(message);
+  }
+
+  // close snackbar/toast
+  const handleCloseSnackbar = () => {
+    setSnackbarOpen(false);
+  }
+
+  async function handleCheckOut() {
+    const userId = auth.id;
+    const transaction = await fetchUserCart(userId);
+
+    if (transaction !== null) {
+      await updateTransaction(transaction._id, {
+        status: "pending"
+      });
+    }
+    
+    displaySnackbar("You have checked out! Your transaction will be checked by one of our staff shortly.");
+    setProductList([]);
+
+    // create a new cart
+    createTransaction({
+      userId: userId,
+      products: [],
+      status: "cart"
+    });
+  }
 
   return (
     <Box
@@ -230,7 +327,7 @@ const Home: React.FC = () => {
         style={{ padding: "16px", marginTop: "16px", position: "relative" }}
       >
         <Typography variant="h6">Summary</Typography>
-        <Typography variant="body1">Total Price: ${getTotalPrice()}</Typography>
+        <Typography variant="body1">Total Price: {getTotalPrice()} points</Typography>
         <Box
           style={{
             position: "absolute",
@@ -248,11 +345,18 @@ const Home: React.FC = () => {
             variant="contained"
             color="primary"
             style={{ width: "150px" }}
+            onClick={ handleCheckOut }
           >
             Check Out
           </Button>
         </Box>
       </Paper>
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        message={snackbarMessage}
+      />
     </Box>
   );
 };
