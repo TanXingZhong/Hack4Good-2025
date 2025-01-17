@@ -17,6 +17,7 @@ import Users from "./components/pages/Users";
 import Tasks from "./components/pages/Tasks";
 import "bootstrap/dist/css/bootstrap.min.css";
 import ManageTasks from "./components/pages/ManageTasks";
+import MyTransactions from "./components/pages/MyTransactions";
 
 const root = document.getElementById("root");
 
@@ -118,10 +119,10 @@ ReactDOM.createRoot(root!).render(
         >
           <Route index element={<Home />} />
           <Route path="products" element={<Products />} />
-          <Route path="transactions" element={<Transactions />} />
           <Route path="voucher-task" element={<VoucherTask />} />
           <Route path="voucher-approval" element={<VoucherApprovalReject />} />
           <Route path="tasks" element={<Tasks />} />
+          <Route path="my-transactions" element={<MyTransactions />} />
           <Route
             path="manage-users"
             element={
@@ -131,15 +132,12 @@ ReactDOM.createRoot(root!).render(
               />
             }
           />
-          <Route
-            path="manage-requests"
-            element={
-              <AdminRoute
-                adminRoute={<ManageRequests />}
+          <Route path="transactions" element={
+            <AdminRoute
+                adminRoute={<Transactions />}
                 nonAdminRoute={<Navigate to="/" />}
-              />
-            }
-          />
+            />
+          } />
           <Route
             path="inventory"
             element={

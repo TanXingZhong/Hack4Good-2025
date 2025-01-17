@@ -210,7 +210,7 @@ export async function updateProduct(req: Request, res: Response) {
         // Update other fields if provided
         product.name = name || product.name;
         product.description = description || product.description;
-        product.imageUrl = imageUrl || product.description;
+        product.imageUrl = imageUrl || product.imageUrl;
 
         // Save the updated product
         const updatedProduct = await product.save();

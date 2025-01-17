@@ -15,7 +15,8 @@ import {
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useAuth } from "../../contexts/AuthContext";
 import { createTransaction, fetchUserCart, updateTransaction } from "../../api/transaction";
-import { getProduct } from "../../api/product";
+import { getProduct, updateProduct } from "../../api/product";
+import { getUserById, updateAccount } from "../../api/user";
 
 interface CartItem {
   id: string;
@@ -242,17 +243,64 @@ const Home: React.FC = () => {
         status: "pending"
       });
     }
-    
-    displaySnackbar("You have checked out! Your transaction will be checked by one of our staff shortly.");
-    setProductList([]);
 
-    // create a new cart
-    createTransaction({
-      userId: userId,
-      products: [],
-      status: "cart"
-    });
+    let totalPrice = 0;
+    for (let i = 0; i < transaction.products.length; i++) {
+
+      const product = await getProduct(transaction.products[i].productId)
+
+      totalPrice += (product.productInfo.data.price * transaction.products[i].amount);
+      
+      // deduct product inventory stock
+      await updateProduct(transaction.products[i].productId, 
+        undefined, undefined, undefined, 
+        product.productInfo.data.countInStock - transaction.products[i].amount,
+        undefined
+      );
+    }
+
+    const isValid = await deductVouchers(userId, totalPrice);
+
+    if (isValid) {
+      displaySnackbar("You have checked out! Your transaction will be checked by one of our staff shortly.");
+      setProductList([]);
+
+      // create a new cart
+      createTransaction({
+        userId: userId,
+        products: [],
+        status: "cart"
+      });
+    }
   }
+
+  const [ vouchers, setVouchers ] = useState(0);
+  
+  const getVouchers = async (userId: string) => {
+    const userInfo = await getUserById(userId);
+    setVouchers(userInfo.data.voucher);
+  }
+
+  const deductVouchers = async (userId: string, toDeduct : number) => {
+
+    console.log(toDeduct);
+
+    if (vouchers < toDeduct) {
+      displaySnackbar("Not enough voucher credits! Try to clear your cart");
+      return false;
+    } else {
+      await updateAccount({
+        id: userId,
+        voucher: vouchers - toDeduct
+      });
+      await getVouchers(auth.id);
+      return true;
+    }
+  }
+
+  useEffect(()=> {
+    getVouchers(auth.id);
+  }, [])
 
   return (
     <Box
@@ -339,7 +387,7 @@ const Home: React.FC = () => {
           }}
         >
           <Typography variant="h6" style={{ marginBottom: "8px" }}>
-            Voucher Balance: 500 points
+            Voucher Balance: { vouchers } points
           </Typography>
           <Button
             variant="contained"
