@@ -14,6 +14,7 @@
 - [Key Features](#key-features)
 - [Solutions](#solutions)
 - [Prototype Components](#prototype-components)
+- [Tech Stack](#tech-stack)
 - [Potential Impact](#potential-impact)
 - [FAQs](#faqs)
 
