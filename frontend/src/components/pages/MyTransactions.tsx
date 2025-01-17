@@ -27,11 +27,9 @@ interface Transaction {
 
 interface TransactionProps {
   item: Transaction,
-  onApprove: (transactionId : string) => void, 
-  onReject: (transactionId : string) => void, 
 }
 
-const CartItemComponent: React.FC<TransactionProps> = ({ item, onApprove, onReject }) => {
+const CartItemComponent: React.FC<TransactionProps> = ({ item }) => {
   let totalPrice = 0;
   for (let i = 0; i < item.products.length; i++) {
     if (item.products[i].productId) {
@@ -45,11 +43,6 @@ const CartItemComponent: React.FC<TransactionProps> = ({ item, onApprove, onReje
     <Paper elevation={2} style={{ padding: "16px", marginBottom: "16px" }}>
       <Grid2 container spacing={2} alignItems="center">
         <Grid2 size={{ xs: 2 }}>
-          <Typography variant="body1">
-            { item.userId }
-          </Typography>
-        </Grid2>
-        <Grid2 size={{ xs: 2 }}>
           <ul>
             { item.products.map(product => (<li>
               { product.amount.toString() }x {product.productId.name} 
@@ -62,28 +55,12 @@ const CartItemComponent: React.FC<TransactionProps> = ({ item, onApprove, onReje
           </Typography>
         </Grid2>
         <Grid2 size={{ xs: 1 }}>{item.status.toUpperCase()[0] + item.status.substring(1)}</Grid2>
-        <Grid2 size={{ xs: 1 }}>
-          {item.status === "pending" ? (
-            <Stack direction="row" gap="2">
-              <IconButton onClick={() => onApprove(item._id)}>
-                <DoneRounded sx={{ color: "green" }} />
-              </IconButton>
-              <IconButton onClick={() => onReject(item._id)}>
-                <CloseRounded sx={{ color: "red" }} />
-              </IconButton>
-            </Stack>
-          ) : (
-            <Typography variant="body2" color="textSecondary">
-              No Action
-            </Typography>
-          )}
-        </Grid2>
       </Grid2>
     </Paper>
   );
 };
 
-const Transactions: React.FC = () => {
+const MyTransactions: React.FC = () => {
   const [transactionItems, setTransactionItems] = useState<Transaction[]>([]);
 
   const [selectedTab, setSelectedTab] = useState(0);
@@ -98,32 +75,6 @@ const Transactions: React.FC = () => {
     if (selectedTab === 2) return item.status === "approved";
     return true;
   });
-
-  const handleApproval = async (id: string) => {
-    // setCartItems((items) => items.filter((item) => item.id !== id));
-    const transaction = await getTransactionById(id);
-    
-    if (transaction !== null) {
-      await updateTransaction(transaction._id, {
-        status: "approved"
-      });
-    }
-    
-    fetchTransactions();
-  };
-
-  const handleRejection = async (id: string) => {
-    // setCartItems((items) => items.filter((item) => item.id !== id));
-    const transaction = await getTransactionById(id);
-    
-    if (transaction !== null) {
-      await updateTransaction(transaction._id, {
-        status: "rejected"
-      });
-    }
-    
-    fetchTransactions();
-  };
 
   const fetchTransactions = async () => {
     const transactions = await getTransactions() as Transaction[];
@@ -142,7 +93,7 @@ const Transactions: React.FC = () => {
       }}
     >
       <Typography component="h2" variant="h6" sx={{ mb: 2 }}>
-        Manage Requests
+        My Transactions
       </Typography>
 
       <Tabs value={selectedTab} onChange={handleTabChange}>
@@ -154,11 +105,6 @@ const Transactions: React.FC = () => {
       <Divider style={{ margin: "16px 0" }} />
 
       <Grid2 container spacing={2} style={{ padding: "16px" }}>
-        <Grid2 size={{ xs: 2 }}>
-          <Typography variant="body1" fontWeight="bold">
-            Resident
-          </Typography>
-        </Grid2>
         <Grid2 size={{ xs: 2 }}>
           <Typography variant="body1" fontWeight="bold">
             Items
@@ -174,11 +120,6 @@ const Transactions: React.FC = () => {
             Status
           </Typography>
         </Grid2>
-        <Grid2 size={{ xs: 1 }}>
-          <Typography variant="body1" fontWeight="bold">
-            Actions
-          </Typography>
-        </Grid2>
       </Grid2>
       <Divider style={{ marginBottom: "16px" }} />
       <Box>
@@ -186,8 +127,6 @@ const Transactions: React.FC = () => {
           <CartItemComponent
             key={item._id}
             item={item}
-            onApprove={handleApproval}
-            onReject={handleRejection}
           />
         ))}
       </Box>
@@ -195,4 +134,4 @@ const Transactions: React.FC = () => {
   );
 };
 
-export default Transactions;
+export default MyTransactions;

@@ -260,7 +260,7 @@ async function updateAccount(details: {
   username?: string;
   email?: string;
   phoneNumber?: string;
-  voucher?: string;
+  voucher?: number;
   gender?: string;
   isActive?: boolean;
   newPassword?: string;

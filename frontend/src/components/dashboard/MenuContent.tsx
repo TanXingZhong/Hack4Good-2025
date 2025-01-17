@@ -30,9 +30,9 @@ export default function MenuContent() {
     { text: "Home", icon: <HomeRoundedIcon />, path: "/" },
     { text: "Products", icon: <ShoppingCart />, path: "/products" },
     {
-      text: "Transactions",
+      text: "My Transactions",
       icon: <AnalyticsRoundedIcon />,
-      path: "/transactions",
+      path: "/my-transactions",
     },
     {
       text: "Voucher Task",
@@ -48,7 +48,7 @@ export default function MenuContent() {
     {
       text: "Manage Requests",
       icon: <ReceiptLong />,
-      path: "/manage-requests",
+      path: "/transactions",
     },
     { text: "Inventory", icon: <InventoryRounded />, path: "/inventory" },
 
@@ -59,8 +59,8 @@ export default function MenuContent() {
     },
   ];
 
-  const secondaryListItems = [
-    { text: "Settings", icon: <SettingsRoundedIcon /> },
+  const secondaryListItems: any[] = [
+    // { text: "Settings", icon: <SettingsRoundedIcon /> },
     // { text: "About", icon: <InfoRoundedIcon /> },
     // { text: "Feedback", icon: <HelpRoundedIcon /> },
   ];
